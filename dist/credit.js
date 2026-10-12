@@ -1,11 +1,12 @@
+import {householdDue} from './household.js';
 // Contract mechanics are explicit. Rates/limits are an opt-in educational model,
 // NOT historical Korean bank products, DSR regulations or lending approval.
 const index=m=>Number(m.slice(0,4))*12+Number(m.slice(5))-1;
 const age=s=>s.startAge+Math.floor((index(s.month)-index(s.start))/12);
 const round=Math.round;
-export function loanLiability(s){return (s.credit?.contracts||[]).reduce((n,c)=>n+c.balance+c.arrearsInterest,0);}
+export function loanLiability(s){return (s.credit?.contracts||[]).reduce((n,c)=>n+c.balance+c.arrearsInterest,0)+(s.household?.debtBalance||0)+(s.household?.debtInterest||0);}
 export function livingShortfall(s){return Math.max(0,round(s.debt-loanLiability(s)));}
-export function loanDue(s){return (s.credit?.contracts||[]).reduce((n,c)=>n+due(c).total,0);}
+export function loanDue(s){return (s.credit?.contracts||[]).reduce((n,c)=>n+due(c).total,0)+householdDue(s);}
 function due(c){const interest=round(c.balance*c.rate/12),principal=Math.min(c.balance,c.arrearsPrincipal+(c.paidMonths>=c.term?c.balance:Math.ceil(c.amount/c.term)));return {interest,principal,total:interest+c.arrearsInterest+principal};}
 export function quoteLoan(s,amount,term,earned){
  const rate=Math.max(.03,Math.min(.15,(s.market?.deposit||.025)+.04));

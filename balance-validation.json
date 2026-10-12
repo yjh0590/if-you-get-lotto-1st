@@ -1,0 +1,137 @@
+{
+  "method": "Same 2003-01 start, 1.4bn KRW, age 28, fixed incident seed, death 75. Initial asset choice held without automatic reinvestment. Lowest-cost available event choices. Synthetic price/wage/cost models, not actual historical returns. Comparing two combined models does not isolate causality.",
+  "rows": [
+    {
+      "model": "legacy market + income",
+      "asset": "cash",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 1589192726,
+      "startPurchasingPowerNetWorth": 389123828,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "legacy market + income",
+      "asset": "deposit",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 3286686958,
+      "startPurchasingPowerNetWorth": 804765960,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "legacy market + income",
+      "asset": "gold",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 89494418344,
+      "startPurchasingPowerNetWorth": 21913270833,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "legacy market + income",
+      "asset": "usd",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 6227572549,
+      "startPurchasingPowerNetWorth": 1524860281,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "legacy market + income",
+      "asset": "energy",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 18558219016,
+      "startPurchasingPowerNetWorth": 4544096570,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "legacy market + income",
+      "asset": "index",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 2373612506,
+      "startPurchasingPowerNetWorth": 581193941,
+      "netSalaryReceived": 1801329885,
+      "livingAndInsuranceSpending": 1612137159,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "cash",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 667982055,
+      "startPurchasingPowerNetWorth": 209834614,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "deposit",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 1969052297,
+      "startPurchasingPowerNetWorth": 618542558,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 229600651
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "gold",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 3799435194,
+      "startPurchasingPowerNetWorth": 1193524605,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "usd",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 561869474,
+      "startPurchasingPowerNetWorth": 176501245,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "energy",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 4576806457,
+      "startPurchasingPowerNetWorth": 1437721882,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 0
+    },
+    {
+      "model": "v1.3 household + balanced market",
+      "asset": "index",
+      "endAge": 75,
+      "months": 564,
+      "nominalNetWorth": 2711850974,
+      "startPurchasingPowerNetWorth": 851879476,
+      "netSalaryReceived": 843871679,
+      "livingAndInsuranceSpending": 1560867013,
+      "interestModelWithholding": 0
+    }
+  ]
+}

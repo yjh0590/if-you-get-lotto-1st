@@ -80,3 +80,9 @@
 @media(max-width:479px){.compact-wallet .money-raw{font-size:12px}.compact-wallet .money-note{font-size:8px!important}}
 
 .compact-salary{display:flex;flex-direction:column;gap:4px;padding:12px 0;font-size:11px;color:#607386;line-height:1.8}.compact-salary b{color:#263b54;font-size:12px;overflow-wrap:anywhere}.compact-person>.life-status-pills{margin-top:16px}.risk-evidence{padding:12px;background:#f7fbff;border-radius:8px;margin:12px 0}.risk-evidence summary{font-size:12px;cursor:pointer}.risk-evidence a{font-size:11px;line-height:1.8}
+
+.statistic-caption{font-size:11px!important;color:#215e98;background:#edf6ff;border-radius:8px;padding:10px 12px;line-height:1.8}
+
+.compact-outflow{font-size:11px;line-height:1.8;color:#9a4c3a;overflow-wrap:anywhere}.household-budget>div{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid #e0e9f2;padding:10px 0;font-size:12px;line-height:1.8}.household-budget b{text-align:right;overflow-wrap:anywhere}.compact-wallet{overflow-y:auto}.living-actions{margin-top:18px}
+
+.protection-metrics{display:grid;gap:0;margin:14px 0;border:1px solid var(--line,#dce5ed);border-radius:12px;overflow:hidden}.protection-metrics>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px 14px;border-bottom:1px solid var(--line,#dce5ed)}.protection-metrics>div:last-child{border-bottom:0}.protection-metrics b{text-align:right;overflow-wrap:anywhere}.protection-metrics span{overflow-wrap:anywhere}#protection-preview section{margin:18px 0}#protection-preview h3{font-size:16px}@media(max-width:479px){.protection-metrics>div{grid-template-columns:1fr}.protection-metrics b{text-align:left}}

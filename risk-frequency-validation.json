@@ -1,0 +1,63 @@
+{
+  "description": "Seeded first-experience sampler verification, not validation of Korean population risk or learning outcomes.",
+  "fullCalendarYear": true,
+  "constantAgeBand": true,
+  "oneFirstExperiencePerYear": true,
+  "model": "1-(1-p)^(1/12), monthly independent draws",
+  "rows": [
+    {
+      "ageBand": "20대",
+      "annualReferencePercent": 1.1,
+      "monthlyModelPercent": 0.09213209362890142,
+      "syntheticSeeds": 40000,
+      "experienced": 432,
+      "observedModelPercent": 1.08,
+      "absoluteTolerancePercent": 0.28075611210477885
+    },
+    {
+      "ageBand": "30대",
+      "annualReferencePercent": 2.3,
+      "monthlyModelPercent": 0.19371734976677818,
+      "syntheticSeeds": 40000,
+      "experienced": 910,
+      "observedModelPercent": 2.275,
+      "absoluteTolerancePercent": 0.3947582554127393
+    },
+    {
+      "ageBand": "40대",
+      "annualReferencePercent": 2.6,
+      "monthlyModelPercent": 0.2192923301014358,
+      "syntheticSeeds": 40000,
+      "experienced": 1043,
+      "observedModelPercent": 2.6075,
+      "absoluteTolerancePercent": 0.41783790669065207
+    },
+    {
+      "ageBand": "50대",
+      "annualReferencePercent": 2.9,
+      "monthlyModelPercent": 0.2449396212563332,
+      "syntheticSeeds": 40000,
+      "experienced": 1162,
+      "observedModelPercent": 2.905,
+      "absoluteTolerancePercent": 0.4395160902754505
+    },
+    {
+      "ageBand": "60대",
+      "annualReferencePercent": 3.4,
+      "monthlyModelPercent": 0.2878469636604174,
+      "syntheticSeeds": 40000,
+      "experienced": 1377,
+      "observedModelPercent": 3.4425,
+      "absoluteTolerancePercent": 0.4730728418256825
+    },
+    {
+      "ageBand": "70대 이상",
+      "annualReferencePercent": 1.7,
+      "monthlyModelPercent": 0.142782625433701,
+      "syntheticSeeds": 40000,
+      "experienced": 670,
+      "observedModelPercent": 1.675,
+      "absoluteTolerancePercent": 0.3431775827621712
+    }
+  ]
+}
