@@ -60,5 +60,13 @@
     "governmentPolicyEvents": 8,
     "policyCoefficients": "illustrative game assumptions, not measured causal effects",
     "earliestStart": "2002-12"
+  },
+  "domesticEconomy": {
+    "version": 1,
+    "actualKoreanStatisticsConnected": false,
+    "demandIndex": "illustrative model, neutral 100, bounded 75..120",
+    "businessRevenueConnected": true,
+    "wageAndUnemploymentConnected": false,
+    "oldSaveOptIn": true
   }
 }

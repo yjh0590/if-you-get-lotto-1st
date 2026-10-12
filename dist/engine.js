@@ -1,3 +1,4 @@
+import {domesticConditions} from './korea-economy.js';
 import {MARKET_EVENTS} from './market-data.js';
 import {marketValue,marketRates,initializeMarket,stepMarket,economicEvent,acknowledgeEconomic,validMarket,trade,sellHalfThemes} from './market.js';
 import {STORY_NODES,nextStory,storyChoices,resolveStory,onJobChange,onPurchaseStory,validStories,trackHomeSale,pruneStoryQueue} from './stories.js';
@@ -22,7 +23,7 @@ export function worth(s){return round(marketValue(s)+s.cash+s.deposit+s.stocks+s
 export function age(s){return s.startAge+Math.floor((monthIndex(s.month)-monthIndex(s.start))/12);}
 export function expenses(s){return round(s.living* s.cpi+(s.home?(s.homeMaintenance??150000)*s.cpi:s.rent*s.cpi)+(s.car?(s.vehicle?.maintenanceBase??200000)*s.cpi:0));}
 export function gameEconomy(s){return {...economy(s.month),...(marketRates(s)||{})};}
-export function businessValue(s){return s.business ? economy(s.month).businessGross*(economy(s.month).pandemic?(s.digital?0.8:0.55):1)-economy(s.month).businessCost : 0;}
+export function businessValue(s){return s.business ? economy(s.month).businessGross*domesticConditions(s).revenueFactor*(economy(s.month).pandemic?(s.digital?0.8:0.55):1)-economy(s.month).businessCost : 0;}
 export function income(s){return round((s.job?economy(s.month).wage:0)+businessValue(s)+s.deposit*gameEconomy(s).deposit/12);}
 export function note(s,type,title,text){s.log.push({id:s.log.length+1,month:s.month,type,title,text});}
 export function createGame(config){
@@ -43,7 +44,7 @@ export function createGame(config){
   purchaseSelection:config.purchaseSelection||null,vehicle:null,collection:[],memories:[],homeDetails:null,homeMaintenance:150000,personalCount:0,deferred:[],used:{},log:[],timeline:[],ended:false,reason:'',lastFlow:null};
  note(s,'start','또 다른 삶이 시작됐다',`${s.round} · 세전 ${s.gross.toLocaleString('ko-KR')}원 / 설정 수령액 ${s.initial.toLocaleString('ko-KR')}원. 금액·공제는 사용자 설정 또는 게임 가정.`);
  if(s.purchaseSelection)note(s,'start','달력에서 고른 구매 시점',`${s.purchaseSelection.date} ${s.purchaseSelection.time}에 구매한 것으로 가정합니다. 당첨과 인생 시작은 ${s.startDate}입니다.`);
- if(config.market===true){initializeMarket(s,config.allocation||'balanced');s.market.lifeEvents=config.lifeEvents===true;}
+ if(config.market===true){initializeMarket(s,config.allocation||'balanced');s.market.lifeEvents=config.lifeEvents===true;s.market.domesticEconomy=true;}
  s.timeline.push({month:s.month,worth:worth(s)});return s;
 }
 function eventAt(s){
