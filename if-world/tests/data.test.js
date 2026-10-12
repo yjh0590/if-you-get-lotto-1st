@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {CATALOG,validateRecord,weeklyDate,playerPrize} from '../dist/lottery.js';
+import {REGIONS,REGION_GROUPS,REGION_META} from '../dist/regions.js';
+import {moneyText,parseMoneyInput,sentenceLines,moneyTokens} from '../dist/format.js';
+import {createGame,validateSave} from '../dist/engine.js';
+test('all 1,245 rounds are complete, unique and valid',()=>{assert.equal(CATALOG.length,1245);assert.deepEqual(CATALOG.map(r=>r.round),Array.from({length:1245},(_,i)=>i+1));for(const raw of CATALOG){const r=validateRecord(raw);assert.equal(r.date,weeklyDate(r.round));assert.ok(playerPrize(r).gross>0);}});
+test('latest lottery record matches October 10 reference',()=>{const r=CATALOG.at(-1);assert.equal(r.round,1245);assert.equal(r.date,'2026-10-10');assert.deepEqual(r.numbers,[4,5,25,28,32,42]);assert.equal(r.bonus,12);assert.equal(r.winners,10);assert.equal(r.perWinner,3006515775);});
+test('85 regions include all municipalities and Jeju administrative cities',()=>{assert.equal(Object.keys(REGIONS).length,85);assert.equal(REGION_META.referenceDate,'2024-12-31');assert.equal(REGION_GROUPS.flatMap(g=>g.regions).length,85);assert.equal(new Set(REGION_GROUPS.flatMap(g=>g.regions)).size,85);assert.ok(REGIONS['jeju-제주'].administrativeCity);assert.ok(REGIONS['jeju-서귀포'].administrativeCity);assert.equal(REGIONS['gg-수원'].population,1193005);});
+test('every regional option creates a valid game',()=>{for(const region of Object.keys(REGIONS)){const s=createGame({month:'2010-07',age:28,name:'지역확인',region,gross:2669834325,net:1868884028});assert.ok(validateSave(s));assert.ok(s.houseBase>0&&s.rent>0);}});
+test('region groups are sorted by official reference population',()=>{for(const group of REGION_GROUPS){const pops=group.regions.map(k=>REGIONS[k].population);assert.deepEqual(pops,pops.slice().sort((a,b)=>b-a));}});
+test('currency contains exact comma groups and readable magnitudes',()=>{assert.equal(moneyText(2669834325),'2,669,834,325원 (약 26.70억 원)');assert.equal(moneyText(300000),'300,000원 (약 30만 원)');assert.equal(moneyText(-2000000),'-2,000,000원 (약 200만 원)');assert.equal(parseMoneyInput('2,669,834,325'),2669834325);assert.throws(()=>parseMoneyInput('20억'));assert.throws(()=>parseMoneyInput('-1'));});
+test('sentence splitting preserves decimal rates and dates',()=>{assert.deepEqual(sentenceLines('시작했습니다. 다음 선택입니다. 결과를 확인하세요.'),['시작했습니다.','다음 선택입니다.','결과를 확인하세요.']);assert.deepEqual(sentenceLines('2010.07.31에 시작합니다. 금리는 2.5%입니다.'),['2010.07.31에 시작합니다.','금리는 2.5%입니다.']);});
+test('money token conversion supports old Korean amounts without duplicated annotation',()=>{assert.equal(moneyTokens('300만 원 지출')[0].value,3000000);const t=moneyTokens('2,669,834,325원 (약 26.70억 원)');assert.equal(t.length,1);assert.equal(t[0].value,2669834325);});

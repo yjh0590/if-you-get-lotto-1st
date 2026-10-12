@@ -1,0 +1,64 @@
+{
+  "asOf": "2026-10-12",
+  "lotteryRecords": 1245,
+  "missingRounds": [],
+  "duplicateRounds": [],
+  "independentMirrorMatched": 1156,
+  "singleProviderRecent": 89,
+  "providerPayloadConsistency": true,
+  "zeroWinnerRounds": [
+    1,
+    4,
+    5,
+    7,
+    8,
+    9,
+    13,
+    18,
+    24,
+    41,
+    71,
+    289,
+    295,
+    463
+  ],
+  "officialDirectDownload": "unavailable",
+  "poolDiscrepancies": [
+    {
+      "round": 1,
+      "mirror": 863604600,
+      "press": 863608600,
+      "applied": 863604600
+    }
+  ],
+  "regionCount": 85,
+  "regionPopulationDate": "2024-12-31",
+  "sources": [
+    "https://api.lotto-haru.kr/win/analysis/0/1/1245.json",
+    "https://raw.githubusercontent.com/hyomuel/Lotto/main/data.json",
+    "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000055&nttId=118777"
+  ],
+  "record19Review": {
+    "date": "2003-04-12",
+    "perWinner": 40722959400,
+    "winners": 1,
+    "poolRestoredFromSingleWinnerPayout": 40722959400,
+    "reportedApproxNet": 31763900000,
+    "source": "https://www.edaily.co.kr/News/Read?mediaCodeNo=257&newsId=01308726609272488"
+  },
+  "market": {
+    "modelVersion": 1,
+    "historicalPriceSeriesConnected": false,
+    "historicalEvents": 19,
+    "stockThemes": 7,
+    "virtualIndex": 1,
+    "assetPrices": "fictional monthly model",
+    "eventFacts": "primary sources; market impacts are game assumptions",
+    "lotteryStart": "2002-12",
+    "taxesConnected": false,
+    "globalEconomicEvents": 11,
+    "governmentPolicyEvents": 8,
+    "policyCoefficients": "illustrative game assumptions, not measured causal effects",
+    "earliestStart": "2002-12"
+  }
+}
