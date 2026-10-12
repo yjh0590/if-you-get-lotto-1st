@@ -68,5 +68,17 @@
     "businessRevenueConnected": true,
     "wageAndUnemploymentConnected": false,
     "oldSaveOptIn": true
+  },
+  "learning": {
+    "version": 1,
+    "historicalEvents": 19,
+    "contemporaryBriefs": 3,
+    "concepts": 6,
+    "birthStart": "2002-12..2026-10",
+    "familyIncome": "game wage times 1.5 until age 19",
+    "guardiansAndInheritance": "educational simplification, not demographic/legal simulation",
+    "actualPriceSeriesConnected": false,
+    "learningOutcomeValidated": false,
+    "validation": "122 tests and mock DOM flows; real browser visual/touch QA pending"
   }
 }

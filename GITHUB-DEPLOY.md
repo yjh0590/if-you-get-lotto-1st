@@ -32,3 +32,11 @@
 게임 로직·정적 빌드는 로컬에서 검증했습니다. GitHub 계정 연결·원격 저장소 업로드·Actions 실행·사용자 사이트 연결은 아직 완료하지 않았습니다. 실제 배포 후 브라우저 화면과 경로를 확인해야 합니다.
 
 공식 참고: https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
+
+## Vercel로 배포
+
+이 버전에는 `vercel.json`을 포함했습니다. `package.json`과 같은 위치에 올립니다.
+Vercel Root Directory는 이 두 파일이 있는 폴더, Build Command는 `npm run build`, Output Directory는 `dist`입니다.
+압축 파일의 `if-world/` 안의 내용을 기존 프로젝트 위치에 올리면 됩니다.
+공유된 게임 로직과 데이터 모듈을 함께 교체하세요. 서로 다른 버전의 JavaScript 파일을 섞지 마세요.
+배포 후 새로고침하고 출생·로또 두 진입을 확인합니다. 저장 기록은 먼저 JSON으로 백업하세요.
