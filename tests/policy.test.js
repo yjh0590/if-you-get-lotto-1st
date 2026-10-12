@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createGame,decide,advance,validateSave} from '../dist/engine.js';
+import {policyFor,policyWeight,policyEffects} from '../dist/policy-data.js';
+import {MARKET_EVENTS} from '../dist/market-data.js';
+import {snapshot} from '../dist/market.js';
+import {renderPolicyContext} from '../dist/market-ui.js';
+const game=month=>createGame({month,net:1000000000,gross:1000000000,age:28,region:'incheon',market:true,allocation:'balanced'});
+test('no 1997 mode or IMF event is exposed and pre-lottery dates remain rejected',()=>{assert.ok(!MARKET_EVENTS.some(e=>e.id.includes('imf')));assert.throws(()=>game('1997-10'));assert.throws(()=>createGame({startMode:'economic',month:'1997-10',net:100000000,gross:100000000,age:28,region:'incheon',market:true}));});
+test('inauguration does not retroactively apply policy announced months later',()=>{assert.equal(policyFor('2008-02').eventId,'p-lee2008');assert.deepEqual(policyFor('2008-07').tilt,{});assert.equal(policyFor('2008-08').eventId,'p-green2008');assert.equal(policyFor('2017-05').eventId,'p-moon2017');assert.equal(policyFor('2017-07').eventId,'p-jobs2017');});
+test('government policy event reports zero immediate cash reward and acknowledges only once',()=>{const s=game('2013-01');decide(s,'slow');advance(s,12);assert.equal(s.pending.economicId,'p-park2013');const report=s.market.reports.find(x=>x.id==='p-park2013');assert.equal(report.delta,0);assert.equal(s.market.policy.eventId,'p-park2013');const cash=s.cash;decide(s,'hold');assert.equal(s.cash,cash);assert.ok(validateSave(s));});
+test('policy changes thematic coefficients and foreign exposure rather than political score',()=>{const p=policyFor('2013-03'),raw={software:100,chip:100,consumer:100,finance:100};policyEffects(raw,p,'2013-03');assert.ok(raw.software>100);assert.ok(raw.finance<100);assert.equal(policyWeight(p,'2018-03'),0);const s=game('2025-05');decide(s,'slow');advance(s,12);assert.equal(s.pending.economicId,'p-lee2025');assert.equal(s.market.reports.find(x=>x.id==='p-lee2025').delta,0);});
+test('monthly policy integration matches date snapshots without future policy leakage',()=>{const s=game('2008-07');decide(s,'slow');advance(s);assert.equal(s.pending.economicId,'p-green2008');decide(s,'hold');advance(s);assert.deepEqual(s.market.prices,snapshot('2008-09').prices);assert.equal(s.market.deposit,snapshot('2008-09').deposit);assert.ok(validateSave(s));});
+test('policy UI labels coefficients as game assumptions and source links as factual support',()=>{const s=game('2022-06'),html=renderPolicyContext(s,{escape:String,date:x=>x});assert.match(html,/게임 가정/);assert.match(html,/대통령 이름으로 환율 방향을 고정하지 않습니다/);assert.match(html,/148901282/);assert.ok(!html.includes('p-lee2025'));});
