@@ -1,3 +1,5 @@
+import {loanLiability,livingShortfall,loanDue,stepCredit,validCredit} from './credit.js';
+import {initializeRules,queueRisk,riskChoices,resolveRisk,trackLife,validRules} from './life-risk.js';
 import {initializeLearning,prepareStudy,resolveStudyPreparation,resolveStudyAfter,studyAfter,studyChoices,stepLearning,validLearning} from './learning.js';
 import {domesticConditions} from './korea-economy.js';
 import {MARKET_EVENTS} from './market-data.js';
@@ -48,12 +50,14 @@ export function createGame(config){
  if(s.purchaseSelection)note(s,'start','달력에서 고른 구매 시점',`${s.purchaseSelection.date} ${s.purchaseSelection.time}에 구매한 것으로 가정합니다. 당첨과 인생 시작은 ${s.startDate}입니다.`);
  if(config.market===true){initializeMarket(s,config.startMode==='birth'?'cash':config.allocation||'balanced');s.market.lifeEvents=config.lifeEvents===true;s.market.domesticEconomy=true;}
  if(config.startMode==='birth')s.pending={id:'birth-welcome',kind:'growth',category:'가족과 성장',title:'한 사람의 삶이 시작되었다',text:'어린 시절에는 가족의 소득과 생활비를 관찰합니다. 19세부터 직접 일과 자산을 선택합니다. 가족 자산을 이어 사용하는 것은 학습용 단순화이며 실제 상속·증여 규칙이 아닙니다.'};if(config.learn===true){if(!s.market)throw Error('학습 모드에는 경제 시장이 필요합니다.');initializeLearning(s);}
+ if(config.beta===true)initializeRules(s,config.difficulty||'normal');
  s.timeline.push({month:s.month,worth:worth(s)});return s;
 }
 function eventAt(s){
  const h=HISTORIES.find(h=>h.month===s.month&&!s.seen.includes(h.id));
  if(h){s.seen.push(h.id);const financial=MARKET_EVENTS.find(e=>e.history===h.id&&s.market?.notices.includes(e.id));return studyAfter(s,{...h,...(financial?{economicId:financial.id}:{})});}
  const marketEvent=economicEvent(s);if(marketEvent)return studyAfter(s,marketEvent);
+ if(s.rules?.queue)return {...s.rules.queue};
  if(s.startMode==='birth'&&age(s)<19&&monthIndex(s.month)-monthIndex(s.start)>0&&(monthIndex(s.month)-monthIndex(s.start))%12===0)return {id:'growth-'+age(s),kind:'growth',category:'가족과 성장',title:age(s)+'세, 조금 넓어진 나의 세계',text:age(s)<7?'놀이와 일상 속에서 가족의 생활을 관찰합니다.':age(s)<13?'용돈과 필요한 물건을 통해 소비와 저축을 생각해 봅니다.':'진로와 공부, 생활비를 생각하며 독립을 준비합니다.'};
  if(s.startMode==='birth'&&age(s)<19)return null;
  if(s.market?.lifeEvents===false)return null;
@@ -70,6 +74,7 @@ export function choices(s){
  const e=s.pending;if(!e)return [];if(e.kind==='story')return storyChoices(s);
  const opt=(id,title,detail)=>({id,title,detail});
  switch(e.kind){
+ case 'risk':return riskChoices(s);
  case 'history-study':return e.stage==='before'?studyChoices():[opt('understood','해설을 읽고 다음 장면으로','개념을 수첩에 기록 · 금전 보상 없음'),opt('review','개념 수첩에서 다시 살펴보기','복습 표시를 남김')];
  case 'growth':return [opt('observe','가족의 생활을 관찰하기','비용 없음 · 생활과 물가의 변화를 살펴봅니다.'),opt('practice','작은 소비를 함께 생각하기','2만 원의 가족 체험비 · 월 소비 기록'),opt('save-note','저축과 용돈을 기록하기','비용 없음 · 왜 저축하는지 생각해 봅니다.')];
  case 'welcome':return [...(s.market?[opt('market-review','처음 자산 배분부터 살펴보기','경제 시장 열기 · 이 선택 자체의 비용 없음')]:[]),opt('first-week','당첨 첫 주의 설렘부터 느껴보기','첫 주의 이야기 열기 · 날짜와 돈은 그대로'),opt('safe','예금으로 안전망 만들기','현금의 30%를 예금으로 이동 · 재산 총액 유지'),opt('quit','일을 그만두고 쉬기','근로소득 중단 · 만족 +8'),opt('slow','일을 계속하며 천천히 결정','근로소득 유지 · 만족 +2'),opt('wish','집·차·명품부터 골라보기','위시리스트 열기 · 이 선택 자체에는 비용 없음')];
@@ -95,8 +100,17 @@ export function choices(s){
  default:return [opt('upgrade','조금 더 여유롭게 살기','기본 생활비 +15% · 만족 +4'),opt('simple','소비 줄이고 가볍게 살기','기본 생활비 −10% · 만족 −2'),opt('balance','현재의 균형 유지하기','비용 없음 · 만족 +1')];
  }
 }
+export function decide(s,id){
+ const p=s.pending;if(!p)throw Error('현재 선택할 사건이 없습니다.');const key=p.id+'|'+s.month;
+ if(s.rules?.confirmed.some(x=>x.key===key))throw Error('이미 확정한 선택입니다.');
+ const option=choices(s).find(x=>x.id===id);if(!option)throw Error('잘못된 선택입니다.');
+ const month=s.month;applyDecision(s,id);
+ if(!s.pending&&!s.ended&&s.rules?.queue)s.pending={...s.rules.queue};
+ if(s.rules){s.rules.confirmed.push({key,month,choice:id,title:option.title});trackLife(s,expenses(s));}
+ s.lastDecision={month,title:option.title,detail:option.detail,event:p.title};return s;
+}
 function costForGrowth(id){return id==='practice'?20000:0;}
-export function choiceCost(s,id){const k=s.pending?.kind;if(k==='growth')return id==='practice'?20000:0;if(k==='story')return storyChoices(s).find(o=>o.id===id)?.cost||0;if(k==='culture')return id==='visit'?1500000:id==='watch'?100000:0;
+export function choiceCost(s,id){const k=s.pending?.kind;if(k==='risk')return riskChoices(s).find(x=>x.id===id)?.cost||0;if(k==='growth')return id==='practice'?20000:0;if(k==='story')return storyChoices(s).find(o=>o.id===id)?.cost||0;if(k==='culture')return id==='visit'?1500000:id==='watch'?100000:0;
  if(k==='pandemic'&&id==='digital')return s.business?3000000:1000000;
  if(k==='reopen')return id==='trip'?3000000:id==='meet'?300000:0;
  if(k==='family'&&id==='gift')return 10000000;
@@ -104,9 +118,10 @@ export function choiceCost(s,id){const k=s.pending?.kind;if(k==='growth')return 
  if(k==='friend')return id==='pilot'?5000000:id==='review'?200000:0;
  const costs={travel:{long:3000000,near:200000},homecare:{renovate:10000000,small:1000000},businessplan:{campaign:3000000,service:500000},hobby:{gear:2000000,trial:200000},scam:{send:10000000},rest:{routine:500000,meet:200000},social:{host:500000,coffee:50000},community:{donate:1000000}};
  return costs[k]?.[id]||0;}
-export function decide(s,id){
+function applyDecision(s,id){
  if(s.ended||!s.pending)throw Error('현재 선택할 사건이 없습니다.');
  const option=choices(s).find(x=>x.id===id);if(!option)throw Error('잘못된 선택입니다.');
+ if(s.pending.kind==='risk'){const job=s.job;resolveRisk(s,id);if(job&&!s.job)onJobChange(s);s.pending=null;return s;}
  if(s.pending.kind==='history-study'){if(s.pending.stage==='before'){resolveStudyPreparation(s,id);return s;}const eventId=resolveStudyAfter(s,id);acknowledgeEconomic(s,eventId);s.pending=null;s.pending=studyAfter(s,economicEvent(s));return s;}
  if(s.pending.kind==='growth'){if(s.cash<costForGrowth(id))throw Error('가족의 현금이 부족합니다.');s.cash-=costForGrowth(id);note(s,'choice',option.title,'가족과 함께한 성장 선택 · 체험비 '+costForGrowth(id).toLocaleString('ko-KR')+'원. 실제 발달이나 교육 효과를 추정하지 않습니다.');s.pending=null;return s;}
  if(s.pending.kind==='story'){resolveStory(s,id);if(s.month===endMonth(s)){if(s.lifetime)finishLife(s);else{s.ended=true;s.reason='현재 시점에 도착했습니다.';}}return s;}
@@ -148,7 +163,7 @@ export function availableActions(s){const eco=gameEconomy(s);return [
  {id:'car',title:s.car?'차 처분':'차 구매',detail:s.car?(s.vehicle?'차 평가액의 98% 현금 회수 · 유지비 중단':'회수금 없음 · 월 유지비 중단'):'3,000만 원 지출 · 월 유지비 20만 원 × 물가 배율',cost:s.car?0:30000000,once:true},
  {id:'simple',title:'생활비 줄이기',detail:'기본 생활비 −10% · 월 1회',once:true},
  {id:'leisure',title:'나를 위한 하루',detail:'30만 원 지출 · 만족 +2 · 월 1회',cost:300000,once:true}
- ].map(a=>({...a,disabled:(s.startMode==='birth'&&age(s)<19)||s.ended||a.requires===false||(a.cost||0)>s.cash||(a.once&&s.used[a.id]===s.month)||(a.id==='simple'&&s.living<400000)}));}
+ ].map(a=>({...a,disabled:(s.startMode==='birth'&&age(s)<19)||s.ended||a.requires===false||(a.cost||0)>s.cash||(a.once&&s.used[a.id]===s.month)||(a.id==='simple'&&s.living<400000)||(a.id==='job'&&!s.job&&s.rules?.jobReadyAt>monthIndex(s.month))}));}
 export function action(s,id){
  const a=availableActions(s).find(a=>a.id===id);if(!a||a.disabled)throw Error('지금은 실행할 수 없습니다.');
  if(s.market&&['invest','sell'].includes(id)){trade(s,'index',id==='invest'?'buy':'sell',10000000);return s;}
@@ -182,9 +197,10 @@ export function advance(s,count=1){
  s.home=round(s.home*Math.pow(1+eco.house,1/12));s.houseBase=round(s.houseBase*Math.pow(1+eco.house,1/12));
  for(const d of s.deferred.filter(d=>d.month===s.month)){s.cash+=d.cash;s.happy+=d.happy;note(s,'result',d.title,`이전 선택의 결과 · 현금 +${d.cash.toLocaleString('ko-KR')}원 · 만족 +${d.happy} (게임 가정)`);}
  s.deferred=s.deferred.filter(d=>d.month>s.month);
- if(s.cash<0){s.debt+=-s.cash;s.cash=0;}else if(s.debt){const paid=Math.min(s.cash,s.debt);s.cash-=paid;s.debt-=paid;}
+ const creditFlow=stepCredit(s);
+ if(s.cash<0){s.debt+=-s.cash;s.cash=0;}else if(livingShortfall(s)){const paid=Math.min(s.cash,livingShortfall(s));s.cash-=paid;s.debt-=paid;}
  s.happy=clamp(s.happy);s.health=clamp(s.health);
- s.lastFlow={salary,business,interest,spending,net:salary+business+interest-spending};stepLearning(s);
+ s.lastFlow={salary,business,interest,spending,creditInterest:creditFlow.interestIncurred,creditInterestPaid:creditFlow.interestPaid,loanPrincipal:creditFlow.principalPaid,loanDue:creditFlow.due,net:salary+business+interest-spending-creditFlow.interestPaid-creditFlow.principalPaid};stepLearning(s);trackLife(s,spending);queueRisk(s);
  note(s,'month','한 달의 생활',`급여 ${salary.toLocaleString('ko-KR')}원 · 사업손익 ${business.toLocaleString('ko-KR')}원 · 이자 ${interest.toLocaleString('ko-KR')}원 · 생활·주거비 ${spending.toLocaleString('ko-KR')}원`);
  s.timeline.push({month:s.month,worth:worth(s)});
  s.pending=s.month>=endMonth(s)?null:eventAt(s);
@@ -196,7 +212,7 @@ export function advance(s,count=1){
  }return s;
 }
 export function validateSave(s){
- if(!s||!validLearning(s)||!validMarket(s)||!validStories(s)||!validLifestyle(s)||s.version!==VERSION||typeof s.name!=='string'||typeof s.round!=='string'||!Object.hasOwn(REGIONS,s.region))return false;
+ if(!s||!validCredit(s)||!validRules(s)||!validLearning(s)||!validMarket(s)||!validStories(s)||!validLifestyle(s)||s.version!==VERSION||typeof s.name!=='string'||typeof s.round!=='string'||!Object.hasOwn(REGIONS,s.region))return false;
  for(const k of ['cash','deposit','stocks','home','debt','initial','gross','living','rent','houseBase','cpi','happy','health','startAge'])if(!Number.isFinite(s[k])||s[k]<0||s[k]>1e15)return false;
  if(s.startMode!==undefined&&!['lottery','birth'].includes(s.startMode))return false;
  const minimum='2002-12';
@@ -206,7 +222,7 @@ export function validateSave(s){
  if(s.log.length>10000||!s.log.every(l=>l&&['id','month','type','title','text'].every(k=>typeof l[k]===(k==='id'?'number':'string'))))return false;
  if(!s.timeline.every(t=>t&&typeof t.month==='string'&&Number.isFinite(t.worth)))return false;
  if(!s.seen.every(x=>typeof x==='string')||!s.deferred.every(d=>d&&typeof d.month==='string'&&typeof d.title==='string'&&Number.isFinite(d.cash)&&Number.isFinite(d.happy)))return false;
- if(s.pending&&(!['history-study','growth','economic','story','welcome','crisis','civic','culture','pandemic','reopen',...PERSONAL.map(p=>p.kind)].includes(s.pending.kind)||typeof s.pending.title!=='string'||typeof s.pending.text!=='string'))return false;
+ if(s.pending&&(!['risk','history-study','growth','economic','story','welcome','crisis','civic','culture','pandemic','reopen',...PERSONAL.map(p=>p.kind)].includes(s.pending.kind)||typeof s.pending.title!=='string'||typeof s.pending.text!=='string'))return false;
  if(s.pending?.kind==='economic'&&(!s.market||!s.market.notices.includes(s.pending.economicId)))return false;
  if(s.pending?.kind==='story'&&(!STORY_NODES[s.pending.storyId]||typeof s.pending.origin!=='string'||!s.story?.seen.includes(s.pending.storyId)))return false;
  if(s.purchaseSelection!==undefined&&s.purchaseSelection!==null){const x=s.purchaseSelection;if(x.mode!=='calendar'||typeof x.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||typeof x.time!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(x.time))return false;}
@@ -224,6 +240,7 @@ export function validateSave(s){
  if(s.draw!==undefined&&s.draw!==null){const d=s.draw;if(!Number.isInteger(d.round)||d.round<1||d.round>100000||!Array.isArray(d.numbers)||d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>45)||!Number.isInteger(d.bonus)||d.bonus<1||d.bonus>45||d.numbers.includes(d.bonus)||!Number.isInteger(d.winners)||d.winners<0||!Number.isInteger(d.simulatedWinners)||d.simulatedWinners<1)return false;}
  if(s.personalCount!==undefined&&(!Number.isInteger(s.personalCount)||s.personalCount<0||s.personalCount>10000))return false;
  if(s.pending?.url){try{const u=new URL(s.pending.url);if(u.protocol!=='https:'||!['www.korea.kr','www.pa.go.kr','www.sec.gov','www.ecb.europa.eu','www.bankofengland.co.uk','www.who.int','www.federalreserve.gov','law.ccourt.go.kr','library.olympics.com'].includes(u.hostname))return false;}catch{return false;}}
+ if(s.lastDecision!==undefined&&(!s.lastDecision||!['month','title','detail','event'].every(k=>typeof s.lastDecision[k]==='string')))return false;
  if(s.startMode==='birth'&&(typeof s.guardian!=='boolean'||(age(s)<19&&(s.job||s.business||!s.guardian))))return false;
  return ['job','business','digital','car','ended'].every(k=>typeof s[k]==='boolean');
 }

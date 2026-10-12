@@ -80,5 +80,17 @@
     "actualPriceSeriesConnected": false,
     "learningOutcomeValidated": false,
     "validation": "122 tests and mock DOM flows; real browser visual/touch QA pending"
+  },
+  "betaFinance": {
+    "version": "1.1.0",
+    "historicalLoanProductsConnected": false,
+    "loanRatesAndLimits": "explicit opt-in educational assumptions",
+    "repaymentMethod": "equal principal, monthly calculation",
+    "riskProbabilities": "fictional monthly model, seed persisted",
+    "onlineRankingConnected": false,
+    "validation": "143 unit tests and mock DOM flows; real browser QA pending",
+    "ageSpecificRiskProbabilitiesConnected": false,
+    "riskEvidence": "source and age-year availability displayed; missing annual and monthly probabilities remain null",
+    "comfortChoices": "fictional consumption changes happiness and subjective feeling only; risk and market unchanged"
   }
 }
